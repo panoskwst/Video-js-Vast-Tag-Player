@@ -1,0 +1,30 @@
+<html>
+    <head>
+      <link href="https://vjs.zencdn.net/8.23.3/video-js.css" rel="stylesheet">
+      <link rel='stylesheet' href='style.css' type='text/css' />
+      
+<script type="text/javascript" src="script.js"></script>
+    </head>
+    <body>
+    	<div id="adContainerDiv">
+      <video id="content_video" class="video-js vjs-default-skin" controls preload="auto"></video>
+      
+      <div id="custom-controls">
+  			<button data-action="ad-play-pause" id="ad-play-pause-btn">
+        	<div class="dscm-pause-btn"></div>
+  			</button>
+        <button data-action="ad-mute-unmute" id="ad-mute-btn">
+        	<div class="dscm-sound-btn">
+            <span></span>
+            <span></span>
+            <span></span>
+      		</div>
+  			</button>
+        <!-- <button id="skip-btn" disabled>Skip</button> -->
+  		</div>
+      
+      <div id="ad-timer">Ad: 0s</div>
+      
+  	</div>
+    </body>
+    </html>

@@ -1,0 +1,591 @@
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<div id="inread_video">
+
+</div>
+
+<div id="inread_video_mob">
+
+</div>
+
+
+<script>
+(function () {
+  
+  const isMobile = parent.window.innerWidth <= 1023;
+  const targetEl = isMobile ? parent.document.getElementById("inread_video_mob") : parent.document.getElementById("inread_video");
+  if (isMobile) {
+    console.log('device is mobile');
+  } 
+  if (!targetEl) return;
+  console.log('width is' + parent.window.innerWidth);
+        
+  const iframeContainer = parent.document.createElement('div');
+  iframeContainer.style.width =  isMobile ?  'clamp(280px, 80vw, 640px)' : '640px';
+  iframeContainer.style.aspectRatio = "16/9";
+  iframeContainer.style.margin = '0 auto';
+  iframeContainer.innerHTML = `<div class="close-btn-container"><button class="sticky-iframe-close-btn"><div class="dscm-close-btn"></div></button></div>`;
+  targetEl.appendChild(iframeContainer);
+
+  // Create and insert iframe
+  const iframe = parent.document.createElement('iframe');
+  iframe.width = isMobile ?  '100%' : '640px';
+  iframe.style.aspectRatio = "16/9";
+  iframe.style.border = "none";
+  iframe.id = "video_player_iframe";
+  iframeContainer.appendChild(iframe);
+  
+  console.log('iframe is created');
+  
+  const style = parent.document.createElement('style');
+  
+  style.textContent = `
+  				.sticky-iframe{
+          	position: fixed;
+            bottom: 0;
+            right: 10px;
+            width: 640px;
+            height: 360px;
+            z-index: 99999;
+          }
+          .close-btn-container {
+          	width: 100%;
+            height:auto;
+            position: relative;
+            z-index: 99999;
+          }
+          .sticky-iframe-close-btn {
+          	position: absolute;
+            top: -35px;
+            left: 0;
+            width: 20px;
+            height: 20px;
+            background: transparent;
+            border: 0;
+            display: none;
+            
+          }
+          .sticky-iframe .sticky-iframe-close-btn {
+          	display: block;
+          }
+          .dscm-close-btn {
+            padding: 0;
+            border-radius: 4px;
+            display: block;
+            position: relative;
+            width: 30px;
+            height: 30px;
+            background: #fff;
+            color: #c9184a;
+            border: 1px solid #c9184a;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .dscm-close-btn:before {
+            content: '' ;
+            box-sizing: border-box;
+            border-radius: 13px;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 0;
+            margin: 0;
+            padding: 0;
+            height: 1px;
+            border-left: 8px solid currentColor;
+            border-right: 8px solid currentColor;
+            -webkit-transform: translate3d(-50%,-50%,0) rotate(-45deg);
+            transition: all .2s cubic-bezier(.25,.46,.45,.94);
+        }
+
+
+        .dscm-close-btn:after {
+            content: '';  
+            box-sizing: border-box;
+            border-radius: 13px;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 0;
+            margin: 0;
+            padding: 0;
+            height: 1px;
+            border-left: 8px solid currentColor;
+            border-right: 8px solid currentColor;
+            -webkit-transform: translate3d(-50%,-50%,0) rotate(45deg);
+            transition: all .2s cubic-bezier(.25,.46,.45,.94);
+        }
+        
+        /* mobile */
+        @media only screen and (max-width: 1023px) {
+        	
+          .sticky-iframe{
+          	position: fixed;
+            bottom: 150px;
+            right: 10px;
+            width: 100%;
+            aspect-ratio: 16/9; 
+            z-index: 99999;
+          }
+        }
+        
+  `;
+  
+  if(!style) {
+    console.log('style element is not here!');
+  } else {
+    console.log('Style element is parsed correctly');
+  }
+  parent.document.head.appendChild(style);
+
+  
+  const stickyIframe = parent.document.getElementById('video_player_iframe');
+
+  if (!stickyIframe) {
+    console.log('i frame did not target correctly');
+  } else {
+    console.log('i frame was target correctly');
+  }
+  
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        iframeContainer.classList.remove('sticky-iframe');
+      } else {
+        iframeContainer.classList.add('sticky-iframe');
+      }
+    });
+  }, { threshold: 0 });
+
+  observer.observe(targetEl);
+  
+  // remove sticky function
+  const closeBtn = iframeContainer.querySelector('.sticky-iframe-close-btn');
+  closeBtn.addEventListener('click', () => {
+    console.log('the close button is pressed');
+    if (iframeContainer.classList.contains('sticky-iframe')) {
+      iframeContainer.classList.remove('sticky-iframe');
+      observer.disconnect();
+    }
+  });
+  
+ const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+  iframeDoc.open();
+  iframeDoc.write(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <link href="https://vjs.zencdn.net/8.23.3/video-js.css" rel="stylesheet">
+      <style>
+      
+      		
+          html, body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            width: 100%;
+            height: 100%;
+          }
+          button {
+            background: transparent;
+            border: 0;
+          }
+        	#adContainerDiv {
+                // width: 100%; 
+                // height: 100%;
+                overflow: hidden;
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 640px;
+            }
+            /* Custom ad controls */
+            #custom-controls {
+              position: absolute;
+              width: 90%;
+              bottom: 10px;
+              left: 10px;
+              z-index: 9999;
+              display: none;
+              justify-content: space-between;
+            }
+            #custom-controls button:disabled {
+              opacity: 0.5;
+              cursor: default;
+            }
+            #ad-timer {
+              background: rgba(0,0,0,0.6);
+              color: #fff;
+              padding: 6px 8px;
+              font-size: 14px;
+              border-radius: 4px;
+              position: absolute;
+              z-index: 9999;
+              top: 10px;
+              left: 10px;
+            }
+            #skip-btn{
+              position: absolute;
+            }
+            
+        #custom-controls img {
+          width: 24px;
+          height: 24px;
+        }
+        #custom-timer {
+          background: rgba(0,0,0,0.6);
+          color: #fff;
+          padding: 6px 8px;
+          font-size: 14px;
+          border-radius: 4px;
+          position: absolute;
+          z-index: 9999;
+          top: 10px;
+          left: 10px;
+        }
+        
+        /* buttons style */
+
+      .dscm-play-btn {
+        width: 0;
+        height: 0;
+        border-left: 30px solid #c9184a;   
+        border-top: 15px solid transparent;
+        border-bottom: 15px solid transparent;
+        cursor: pointer;
+      }
+
+      .dscm-pause-btn {
+        width: 30px;
+        height: 30px;
+        position: relative;
+        background: transparent;
+        cursor: pointer;
+      }
+
+      .dscm-pause-btn::before,
+      .dscm-pause-btn::after {
+        content: '';
+        position: absolute;
+        width: 8px;
+        height: 30px;
+        background: #c9184a;
+        top: 0;
+      }
+
+      .dscm-pause-btn::before {
+        left: 2px;
+      }
+
+      .dscm-pause-btn::after {
+        right: 2px;
+      }
+
+      .dscm-sound-btn {
+        width: 0;
+        height: 0;
+        border-top: 15px solid transparent;
+        border-bottom: 15px solid transparent;
+        border-right: 19px solid #c9184a;
+        position: relative;
+        cursor: pointer;
+      }
+
+
+      /* The speaker's box (rectangle) */
+      .dscm-sound-btn::before {
+        content: '';
+        position: absolute;
+        width: 6px;
+        height: 16px;
+        background: #c9184a;
+        left: 0px;
+        top: -8px;
+      }
+
+      /* First wave */
+      .dscm-sound-btn span:nth-child(1) {
+        position: absolute;
+        width: 10px;
+        height: 10px;
+        border: 2px solid #c9184a;
+        border-left: none;
+        border-bottom: none;
+        border-radius: 50%;
+        top: -6px;
+        left: 17px;
+        transform: rotate(45deg);
+      }
+
+      /* Second wave (bigger) */
+      .dscm-sound-btn span:nth-child(2) {
+        position: absolute;
+        width: 18px;
+        height: 18px;
+        border: 2px solid #c9184a;
+        border-left: none;
+        border-bottom: none;
+        border-radius: 50%;
+        top: -10px;
+        left: 22px;
+        transform: rotate(45deg);
+      }
+
+      .dscm-sound-btn span:nth-child(3) {
+        display: none;
+      }
+
+      .dscm-sound-btn span:nth-child(3)::before {
+          content: '' ;
+          box-sizing: border-box;
+          border-radius: 13px;
+          position: absolute;
+          left: 50%;
+          top: 50%;
+          width: 0;
+          margin: 0;
+          padding: 0;
+          height: 1px;
+          border-left: 10px solid #c9184a;
+          border-right: 10px solid #c9184a;
+          -webkit-transform: translate3d(-50%,-50%,0) rotate(-45deg);
+          transition: all .2s cubic-bezier(.25,.46,.45,.94);
+      }
+
+      .dscm-sound-btn span:nth-child(3)::after {
+            content: '';  
+            box-sizing: border-box;
+            border-radius: 13px;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 0;
+            margin: 0;
+            padding: 0;
+            height: 1px;
+            border-left: 10px solid #c9184a;
+            border-right: 10px solid #c9184a;
+            -webkit-transform: translate3d(-50%,-50%,0) rotate(45deg);
+            transition: all .2s cubic-bezier(.25,.46,.45,.94);
+      }
+
+      .dscm-sound-btn.mute span:nth-child(1),
+      .dscm-sound-btn.mute span:nth-child(2) {
+        display: none;
+      } 
+
+      .dscm-sound-btn.mute span:nth-child(3) {
+        position: relative;
+        left: 25px;
+        display: block;  
+      }
+
+			/* Since the iframe is 300px that's the max width of mobile devices */
+			@media only screen and (max-width: 1030px)  {
+      	#adContainerDiv {
+          width: 100%;
+          
+        }
+      }
+
+      </style>
+    </head>
+    <body>
+    	<div id="adContainerDiv">
+      <video id="content_video" class="video-js vjs-default-skin" controls preload="auto"></video>
+      
+      <div id="custom-controls">
+  			<button data-action="ad-play-pause" id="ad-play-pause-btn">
+        	<div class="dscm-pause-btn"></div>
+  			</button>
+        <button data-action="ad-mute-unmute" id="ad-mute-btn">
+        	<div class="dscm-sound-btn">
+            <span></span>
+            <span></span>
+            <span></span>
+      		</div>
+  			</button>
+        <!-- <button id="skip-btn" disabled>Skip</button> -->
+  		</div>
+      
+      <div id="ad-timer">Ad: 0s</div>
+      
+  	</div>
+      
+    <script>
+            const isMobilee = window.innerWidth <= 639;
+            const offset = window.innerWidth +'px' ;
+            console.log('offset is:' + offset);
+      console.log(window.innerWidth);
+      if(isMobilee) {
+      console.log('the is Mobileee exists');
+      }
+      
+      
+        function loadScript(src) {
+          return new Promise((resolve, reject) => {
+            const script = document.createElement('script');
+            script.src = src;
+            script.onload = resolve;
+            script.onerror = reject;
+            document.head.appendChild(script);
+          });
+        }
+
+        Promise.resolve()
+          .then(() => loadScript("https://vjs.zencdn.net/8.23.3/video.min.js"))
+          .then(() => loadScript("https://unpkg.com/videojs-contrib-ads@7.5.2/dist/videojs-contrib-ads.min.js"))
+          .then(() => loadScript("https://imasdk.googleapis.com/js/sdkloader/ima3.js"))
+          .then(() => loadScript("https://unpkg.com/videojs-ima@2.4.0/dist/videojs.ima.min.js"))
+          .then(() => {
+          
+            const player = videojs('content_video', {
+              controls: true,
+              autoplay: false,
+              muted: true,
+              width: isMobilee ? offset : '640px',
+              fluid: false // prevents responsive resizing
+            });
+    
+            const srcset = "https://afieromata.youweekly.gr/wp-content/uploads/2025/08/black.mp4";
+            const adTagUrl = "https://track.adform.net/serving/videoad/?bn=82468932&v=3&ord=121541452424";
+          console.log(adTagUrl);
+            
+            let adsManager = null;
+            let isAdPaused = false;
+            var soundBtn = document.getElementsByClassName('dscm-sound-btn');
+            const adTimer = document.getElementById('ad-timer');
+
+            player.src({
+              src: srcset,
+              type: 'video/mp4'
+            });
+            videojs.log.level('debug');
+            
+            player.ima({
+              adTagUrl: adTagUrl,
+              paidMode: google.ima.ImaSdkSettings.VpaidMode.ENABLED,
+              debug: true,
+              adsManagerLoadedCallback: function() {
+                var adContainer = document.querySelector('.ima-ad-container');
+                if (adContainer) {
+                  adContainer.style.width = isMobilee ? offset : '640px';
+                //   adContainer.style.height = isMobilee ? '250px' : '360px';
+                  adContainer.style.aspectRatio = '6/5';
+                  adContainer.style.overflow = 'hidden';
+                }
+                adsManager = player.ima.getAdsManager();
+               // adsManager.addEventListener(google.ima.AdEvent.Type.SKIPPABLE_STATE_CHANGED, updateSkipButton);
+               adsManager.addEventListener(google.ima.AdEvent.Type.AD_PROGRESS, updateAdTime);
+               // adsManager.addEventListener(google.ima.AdEvent.Type.COMPLETE, resetUI);
+               // adsManager.addEventListener(google.ima.AdEvent.Type.ALL_ADS_COMPLETED, resetUI);
+                
+                adsManager.addEventListener(google.ima.AdEvent.Type.STARTED, () => {
+                	console.log('Ad Started');
+                  adsManager = player.ima.getAdsManager();
+                  document.getElementById('custom-controls').style.display = 'flex';
+                });
+
+                adsManager.addEventListener(google.ima.AdEvent.Type.COMPLETE, () => {
+                	console.log('Ad Completed');
+                  document.getElementById('custom-controls').style.display = 'none';
+                });
+
+                adsManager.addEventListener(google.ima.AdEvent.Type.SKIPPED, () => {
+                	console.log('Ad Skipped');
+                  document.getElementById('custom-controls').style.display = 'none';
+                });
+
+                adsManager.addEventListener(google.ima.AdEvent.Type.ALL_ADS_COMPLETED, () => {
+                	console.log('Ad Completed');
+                  adTimer.textContent = 'Ad: 0s';
+                  document.getElementById('custom-controls').style.display = 'none';
+                });
+              }
+            });
+						google.ima.settings.setVpaidMode(google.ima.ImaSdkSettings.VpaidMode.ENABLED);
+            
+            player.ready(() => {
+              player.ima.initializeAdDisplayContainer();
+            });
+    
+
+            player.on('adsready', () => {
+              console.log('the player starts now');
+              player.play();
+            });
+
+            player.on('adserror', (e) => {
+              console.error('Video.js Ad Error:', e);
+            });
+            
+            // --- custom Controls --
+            const adControls = document.getElementById('custom-controls');
+            
+            adControls.addEventListener('click', (e) => {
+            	const btn = e.target.closest('button');
+              if(!btn || !adsManager) return;
+              
+              const action = btn.dataset.action;
+              
+              if (action === 'ad-play-pause') {
+                if (isAdPaused) {
+									adsManager.resume();
+                  isAdPaused = false;
+                } else {
+                	adsManager.pause();
+
+                  isAdPaused = true;
+                }
+                updateAdPlayPauseIcon();
+              }
+              
+              if (action === 'ad-mute-unmute') {
+              	if (adsManager.getVolume() > 0) {
+                	adsManager.setVolume(0);
+                  soundBtn[0].classList.toggle('mute');
+                } else {
+                	adsManager.setVolume(1);
+                  soundBtn[0].classList.toggle('mute');
+                }
+              }
+            });
+            
+            function updateAdPlayPauseIcon() {
+            	const playPauseBtn = document.getElementById('ad-play-pause-btn');
+              playPauseBtn.innerHTML = isAdPaused 
+              ? '<div class="dscm-play-btn"></div>'
+              : '<div class="dscm-pause-btn"></div>'
+            }
+            
+            function updateAdTime(event) {
+              var adData = event.getAdData();
+              var remaining = Math.ceil(adData.duration - adData.currentTime);
+              adTimer.textContent = 'Ad: ' + remaining + 's';
+            }
+            [
+            'adsready',
+            'adstart',
+            'adpause',
+            'adresume',
+            'adend',
+            'ads-ad-ended'
+            ].forEach(evt => {
+            player.on(evt, () => console.log('IMA EVENT:', evt));
+            });
+
+            fetch(adTagUrl)
+              .then(res => res.text())
+              .then(xml => console.log('Raw VAST XML:', xml))
+              .catch(err => console.error('VAST Fetch Error:', err));
+          })
+          .catch(err => console.error('Script loading failed:', err));
+      <\/script>
+    </body>
+    </html>
+  `);
+  iframeDoc.close();
+})();
+</script>
