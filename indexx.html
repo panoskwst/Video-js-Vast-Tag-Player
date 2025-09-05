@@ -22,7 +22,8 @@
   console.log('width is' + parent.window.innerWidth);
         
   const iframeContainer = parent.document.createElement('div');
-  iframeContainer.style.width =  isMobile ?  'clamp(280px, 80vw, 640px)' : '640px';
+  iframeContainer.setAttribute( "id" , "Dscm-player" );
+  iframeContainer.style.width =  isMobile ?  'clamp(280px, 70vw, 640px)' : '640px';
   iframeContainer.style.aspectRatio = "16/9";
   iframeContainer.style.margin = '0 auto';
   iframeContainer.innerHTML = `<div class="close-btn-container"><button class="sticky-iframe-close-btn"><div class="dscm-close-btn"></div></button></div>`;
@@ -502,6 +503,7 @@
                 	console.log('Ad Completed');
                   adTimer.textContent = 'Ad: 0s';
                   document.getElementById('custom-controls').style.display = 'none';
+                  parent.document.getElementById('Dscm-player).style.display = 'none';
                 });
               }
             });
